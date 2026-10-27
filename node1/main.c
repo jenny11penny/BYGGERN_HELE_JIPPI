@@ -75,7 +75,7 @@ int main(void)
         joy.data[2] = joystick_btn_pressed();
 
         CAN_SendMessage(&joy);
-        _delay_ms(500); //Bytt til 50 når joystick skal styre motor/servo
+        _delay_ms(50); //Bytt til 50 når joystick skal styre motor/servo
         //CAN_SendMessage(&tx);
         //printf("Sendt id=0x%X\r\n", tx.id);
 

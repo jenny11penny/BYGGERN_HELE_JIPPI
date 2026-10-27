@@ -38,8 +38,8 @@ void ADC_calibrate(void) {
     while (!(PINB & (1 << PB0))) {
     }
 
-    x_center = *adc_base; //AIN0
-    y_center = *adc_base; //AIN1
+    y_center = *adc_base; //AIN0
+    x_center = *adc_base; //AIN1
     x_touch_center = *adc_base; //AIN2
     y_touch_center = *adc_base; //AIN3
 }

@@ -3,6 +3,8 @@
 #include "sam.h"
 #include "uart.h"
 #include "can.h"
+#include "pwm.h"
+#include "ir.h"
 
 
 /*
@@ -17,6 +19,25 @@
  * apt or your favorite package manager.
  */
 //#include "../path_to/uart.h"
+void test_pb13_hoy(void) {
+    PMC->PMC_PCER0 = (1u << ID_PIOB);
+    PIOB->PIO_PER  = (1u << 13);
+    PIOB->PIO_OER  = (1u << 13);
+    PIOB->PIO_SODR = (1u << 13);
+}
+
+// Test fra lab 6: skriver ut joystick-meldinger fra Node 1. Kommer aldri tilbake.
+void test_can(void) {
+    can_init((CanInit){.reg = CAN_BR_BRP(41) | CAN_BR_PROPAG(5) | CAN_BR_PHASE1(4) | CAN_BR_PHASE2(3) | CAN_BR_SJW(0)}, 0);
+
+    CanMsg m;
+    while (1) {
+        if (can_rx(&m) && m.id == 0x10) {
+            printf("x=%d y=%d knapp=%d\n\r",
+                   (int8_t)m.byte[0], (int8_t)m.byte[1], m.byte[2]);
+        }
+    }
+}
 
 int main()
 {
@@ -24,31 +45,33 @@ int main()
 
     WDT->WDT_MR = WDT_MR_WDDIS; //Disable Watchdog Timer
 
-    PMC->PMC_PCER0 = (1u << ID_PIOB);
-
-    PIOB->PIO_PER = (1u << 13);
-
-    PIOB->PIO_OER = (1u << 13);
-
-    PIOB->PIO_SODR = (1u << 13);
-
-    PIOB->PIO_PER = PIO_PB27;
-    PIOB->PIO_OER = PIO_PB27;
-
     //Uncomment after including uart above
     uart_init(84000000, 9600);
     printf("Hello World\n\r");
 
     can_init((CanInit){.reg = CAN_BR_BRP(41) | CAN_BR_PROPAG(5) | CAN_BR_PHASE1(4) | CAN_BR_PHASE2(3) | CAN_BR_SJW(0)}, 0);
+    pwm_init();
+    ir_init();
 
     CanMsg m;
+    int pos = 0;
+    uint32_t score = 0;
+
 
     while (1)
     {
-        if (can_rx(&m) && m.id == 0x10) {
-            printf("x=%d y=%d knapp=%d\n\r",
-                   (int8_t)m.byte[0], (int8_t)m.byte[1], m.byte[2]);
-        }
+        printf("%d\n\r", ir_read());
+        for (volatile int i = 0; i < 2000000; i++) { }   // vent litt mellom utskriftene
+        //if (can_rx(&m) && m.id == 0x10) {
+            //int8_t x = (int8_t)m.byte[0];
+            //printf("%d\n\r", x);
+            //pwm_set_us(1500 - x * 6);   // -100 → 900, 0 → 1500, 100 → 2100
+        //}
+
+        //if (ir_goal()) {
+            //score++;
+            //printf("Mål! Poeng: %lu\n\r", score);
+        //}
     }
     
 }

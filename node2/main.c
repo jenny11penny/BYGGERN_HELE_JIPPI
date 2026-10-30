@@ -60,18 +60,18 @@ int main()
 
     while (1)
     {
-        printf("%d\n\r", ir_read());
-        for (volatile int i = 0; i < 2000000; i++) { }   // vent litt mellom utskriftene
-        //if (can_rx(&m) && m.id == 0x10) {
-            //int8_t x = (int8_t)m.byte[0];
+        //printf("%d\n\r", ir_read());
+        //for (volatile int i = 0; i < 2000000; i++) { }   // vent litt mellom utskriftene
+        if (can_rx(&m) && m.id == 0x10) {
+            int8_t x = (int8_t)m.byte[0];
             //printf("%d\n\r", x);
-            //pwm_set_us(1500 - x * 6);   // -100 → 900, 0 → 1500, 100 → 2100
-        //}
+            pwm_set_us(1500 - x * 6);   // -100 → 900, 0 → 1500, 100 → 2100
+        }
 
-        //if (ir_goal()) {
-            //score++;
-            //printf("Mål! Poeng: %lu\n\r", score);
-        //}
+        if (ir_goal()) {
+            score++;
+            printf("Mål! Poeng: %lu\n\r", score);
+        }
     }
     
 }

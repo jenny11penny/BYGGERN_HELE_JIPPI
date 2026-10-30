@@ -13,21 +13,21 @@ static void OLED_DC_Init(void) {
     DDRB |= (1 << OLED_DC); 
 }
 
-static void OLED_Command(uint8_t cmd) {
-    PORTB &= ~(1 << OLED_DC); //DC=lav -> kommando
+static void OLED_Command(uint8_t cmd) {  //Seder kommanto til OLED via SPI
+    PORTB &= ~(1 << OLED_DC); //Setter DC lab -> kommando kommer
     SPI_Select(1);
     SPI_WriteByte(cmd);
     SPI_Deselect(1);
 }
 
-static void OLED_Data(uint8_t data) {
-    PORTB |= (1 << OLED_DC);    // DC=høy -> data
+static void OLED_Data(uint8_t data) { //Sender data
+    PORTB |= (1 << OLED_DC);    // DC=høy -> data kommer
     SPI_Select(1);
     SPI_WriteByte(data);
     SPI_Deselect(1);
 }
 
-void OLED_Init(void) { //Fant ikke init fil, så brukte ChatGPT 
+void OLED_Init(void) { 
     OLED_DC_Init();
 
     OLED_Command(0xAE); //Display av
@@ -35,7 +35,7 @@ void OLED_Init(void) { //Fant ikke init fil, så brukte ChatGPT
     OLED_Command(0xD5); OLED_Command(0x80); // klokkefrekvens
     OLED_Command(0xA8); OLED_Command(0x3F); // multiplex ratio (64-1)
     OLED_Command(0xD3); OLED_Command(0x00); // display offset
-    OLED_Command(0x40);                     // start linje 0
+    OLED_Command(0x40);                     // start på linje 0
 
     OLED_Command(0x20); OLED_Command(0x02); // page adresseringsmodus
     OLED_Command(0xA1);                     // segment remap
@@ -60,7 +60,7 @@ void OLED_GotoLine(uint8_t line) {
     OLED_Command(0xB0 | (line & 0x07));  // side-adresse (0-7)
 }
 
-void OLED_GotoColumn(uint8_t column) {
+void OLED_GotoColumn(uint8_t column) { //0-127 kolonner
     OLED_Command(0x00 | (column & 0x0F));        // kolonne, lav nibble
     OLED_Command(0x10 | ((column >> 4) & 0x0F)); // kolonne, høy nibble
 }
@@ -98,7 +98,7 @@ void OLED_WriteChar(char c) {
     for (uint8_t i = 0; i < 5; i++) {
         OLED_Data(pgm_read_byte(&font5[index][i]));
     }
-    OLED_Data(0x00); // ett tomt kolonne mellom tegn
+    OLED_Data(0x00); // en tom kolonne mellom tegn
 }
 
 void OLED_Print(const char *str) {

@@ -2,12 +2,12 @@
 #include "spi.h"
 #include <avr/io.h>
 
-#define SS1 PB4 //IO
+#define SS1 PB4 //IO slave
 #define MOSI PB5
 #define MISO PB6
 #define SCK PB7
-#define SS2 PB3 //OLED
-#define SS3 PD3//fyll inn MCP2515 slave
+#define SS2 PB3 //OLED slave
+#define SS3 PD3//MCP2515 slave
 
 void SPI_Init(void) {
     //MOSI, SCK og begge SS som utganger. 
@@ -15,7 +15,7 @@ void SPI_Init(void) {
 
     DDRB &= ~(1 << MISO); //MISO som inngang
 
-    DDRD |= (1 << SS3); //Sett SS til MCP2515(PD4) som inngang
+    DDRD |= (1 << SS3); //Sett SS til MCP2515(PD3) som inngang
 
     //Alle slaver antiselect (aktiv lav -> sett høy)
     PORTB |= (1 << SS1) | (1 << SS2);
@@ -72,6 +72,6 @@ void SPI_ReadBytes(uint8_t *buffer, uint8_t len) {
 
 void SPI_test(void) {
     SPI_Select(1);
-    SPI_WriteByte(0xA5);   // binært: 1010 0101 - lett å kjenne igjen på skopet
+    SPI_WriteByte(0xA5);  
     SPI_Deselect(1);
 }

@@ -17,9 +17,10 @@ static uint8_t x_center, y_center, x_touch_center, y_touch_center;
 #define Y_MAX_DIFF  84
 
 void ADC_clock_init(void) {
-    DDRD |= (1 << PD5); //Make PD5 output
+    DDRD |= (1 << PD5); //Gjør PD5 til utgang
 
-    TCCR1A = (1 << COM1A0); //Toggle OC1A on compare match
+    //timer
+    TCCR1A = (1 << COM1A0); 
 
     TCCR1B = (1 << WGM12) | (1 << CS10);
 

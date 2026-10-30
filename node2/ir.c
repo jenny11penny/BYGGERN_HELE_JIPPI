@@ -1,22 +1,23 @@
 #include "sam.h"
 #include "ir.h"
 
-#define TERSKEL 1000
+#define TERSKEL 940
 
 void ir_init(void) {
     PMC->PMC_PCER1 |= PMC_PCER1_PID37; //skru på klokke til ADC
 
-    ADC->ADC_MR = ADC_MR_FREERUN_ON //ADC måler hele tiden av seg selv
+    ADC->ADC_MR = ADC_MR_STARTUP_SUT64//ADC måler hele tiden av seg selv
                 | ADC_MR_PRESCAL(41); //formel ADC_klokke = MCK / ((41+1)*2) = 1MHz, når MCK = 85MHz
     
     ADC->ADC_CHER = ADC_CHER_CH7; //SLÅ PÅ KANAL 7 (A0 på Arduino)
-    ADC->ADC_CR = ADC_CR_START; //Begynner analog-to-digital conversion
+    //ADC->ADC_CR = ADC_CR_START; //Begynner analog-to-digital conversion
 }
 
 uint16_t ir_read(void) {
     uint32_t sum = 0;
 
     for (int i = 0; i < 16; i++) {
+        ADC->ADC_CR = ADC_CR_START;
         while (!(ADC->ADC_ISR & ADC_ISR_EOC7)) {} //venter på ny måling
         sum += ADC->ADC_CDR[7]; //0-4095/12 bit), 0 er 0V og 4095 er 3,3V
     }

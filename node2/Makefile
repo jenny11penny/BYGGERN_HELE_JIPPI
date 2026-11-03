@@ -11,7 +11,11 @@ SOURCE_FILES = \
 	uart.c \
 	can.c \
 	pwm.c \
-	ir.c
+	ir.c \
+	encoder.c \
+	motor.c \
+	pi.c \
+	solenoid.c
 #	../path_to/uart.c \
 #   filename1.c \
 #   filename2.c \

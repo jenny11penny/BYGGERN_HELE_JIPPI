@@ -45,7 +45,7 @@ uint8_t ir_goal(void) {
     }
 
     else {
-        if (clear < 1000) {
+        if (clear < 100) {
             clear++;
         }
         else {

@@ -16,7 +16,7 @@ void CAN_Init(void) {
 
 void CAN_SendMessage(CAN_message *msg) {
     MCP2515_Write(TXB0SIDH, msg->id >> 3); //8 største bitene
-    MCP2515_Write(TXB0SIDL, (msg->id & 0x07) << 5); //3 minste
+    MCP2515_Write(TXB0SIDL, ((msg->id & 0x07) << 5)); //3 minste
     MCP2515_Write(TXB0DLC, msg->length); //skriv lengden på dataen
 
     for (uint8_t i = 0; i < msg->length; i++) {

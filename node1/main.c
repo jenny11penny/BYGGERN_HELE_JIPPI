@@ -75,6 +75,9 @@ int main(void)
         joy.data[2] = joystick_btn_pressed();
 
         CAN_SendMessage(&joy);
+        printf("TX=0x%02X STAT=0x%02X TEC=%d EFLG=0x%02X\r\n",
+        MCP2515_Read(0x30), MCP2515_Read(0x0E),
+        MCP2515_Read(0x1C), MCP2515_Read(0x2D));
         _delay_ms(50); //Bytt til 50 når joystick skal styre motor/servo
         //CAN_SendMessage(&tx);
         //printf("Sendt id=0x%X\r\n", tx.id);

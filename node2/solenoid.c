@@ -2,7 +2,7 @@
 #include "sam.h"
 
 #define SOL_PIN PIO_PB26 //Arduino pinne 22
-#define TICKS 20 //30 ms
+#define TICKS 30 //30 ms
 
 
 static int ticks_left = 0;

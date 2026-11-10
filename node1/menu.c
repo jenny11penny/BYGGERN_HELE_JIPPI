@@ -4,7 +4,7 @@
 #include <util/delay.h>
 
 static uint8_t menu_active = 1;
-int i = 2;
+static int i = 2;
 
 void menu_init(const char *options[], uint8_t size) {
     menu_active = 1;
@@ -13,19 +13,16 @@ void menu_init(const char *options[], uint8_t size) {
     OLED_Clear();
     OLED_Print("Heisann");
 
-    //char *options[] = {"JA", "NEI"};
-    //int antall = 2;
     OLED_Pos(2,0);
 
     OLED_Print(">");
-
-    int selected = 0;
 
     for(int i = 0; i < size; i ++) {
         OLED_Pos(i+2,10);
         OLED_Print(options[i]); 
     }
 }
+
 void menu_update(const char *options[], uint8_t size) {
 
     if (!menu_active) {

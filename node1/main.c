@@ -15,6 +15,58 @@
 #include "can.h"
 #include "mcp2515.h"
 
+void wait_for_button(void) 
+{
+    while (!joystick_btn_pressed()) {
+    }
+    while (joystick_btn_pressed()) {
+    }
+}
+
+void show_lives(uint8_t lives)
+{
+    char buf[17];
+    OLED_Pos(2, 0);
+    sprintf(buf, "Liv: %d", lives);
+    OLED_Print(buf);
+}
+
+
+void play_game(void)
+{
+    CAN_message joy;
+    CAN_message rx;
+    uint8_t lives = 3;
+ 
+    joy.id = 0x10;
+    joy.length = 3;
+
+    while (CAN_Receive(&rx)) { //Tømmer gamle meldinger
+    }
+
+    show_lives(lives);
+
+ 
+    while (1) {
+        Position pos = ADC_read_pos();
+        joy.data[0] = (int8_t)pos.x;
+        joy.data[1] = (int8_t)pos.y;
+        joy.data[2] = joystick_btn_pressed();
+        CAN_SendMessage(&joy);
+ 
+        if (CAN_Receive(&rx) && rx.id == 0x20) {
+            lives --;
+            show_lives(lives);
+
+            if (lives == 0) {
+                break; //game over
+            }
+            
+        }
+        _delay_ms(50);
+    }
+}
+
 int main(void)
 {
     USART_Init(MYUBRR);
@@ -24,9 +76,7 @@ int main(void)
     MCUCR |= (1 << SRE); //aktivere external memomry
 
     SFIOR |= (1 << XMM2); //
-    
-    //volatile uint8_t *adc = (uint8_t *)0x1000;
-    //volatile uint8_t *sram = (uint8_t *)0x1800;
+
 
     ADC_clock_init();
     ADC_calibrate();
@@ -37,84 +87,45 @@ int main(void)
 
     OLED_Pos(0,0);
 
-    const char *options[] = {"JA", "NEI", "KANSKJE"};
+    joystick_btn_init();
+    CAN_Init();
+
+    const char *options[] = {"Glad?: Spill!", "Sur?: Ikke spill!"};
     uint8_t size = sizeof(options) / sizeof(options[0]);
 
     menu_init(options, size);
-
-    joystick_btn_init();
-
-    CAN_Init();
-    printf("CNF1=0x%02X CNF2=0x%02X CNF3=0x%02X\r\n", MCP2515_Read(CNF1), MCP2515_Read(CNF2), MCP2515_Read(CNF3));
-
-    //printf("CANSTAT: 0x%02X\r\n", MCP2515_Read(CANSTAT) & 0xE0);
  
-    // Test 2: send en melding og se at den samme kommer tilbake
-    //CAN_message tx = { .id = 0x23, .length = 3, .data = { 1, 2, 3 } };
-    //CAN_message rx;
-
-    CAN_message joy;
-    joy.id = 0x10;
-    joy.length = 3;
-
- 
-    
- 
-    //if (CAN_Receive(&rx)) {
-      //  printf("Mottatt id=0x%X len=%d data=%d %d %d\r\n", rx.id, rx.length, rx.data[0], rx.data[1], rx.data[2]);
-    //} else {
-      //  printf("Ingen melding mottatt\r\n");
-    //}
- 
-    while (1)
+    while (1) //KI-deklarasjon: menyen er fra claude
     {
-        Position pos = ADC_read_pos();
-
-        joy.data[0] = (int8_t)pos.x;
-        joy.data[1] = (int8_t)pos.y;
-        joy.data[2] = joystick_btn_pressed();
-
-        CAN_SendMessage(&joy);
-        printf("TX=0x%02X STAT=0x%02X TEC=%d EFLG=0x%02X\r\n",
-        MCP2515_Read(0x30), MCP2515_Read(0x0E),
-        MCP2515_Read(0x1C), MCP2515_Read(0x2D));
-        _delay_ms(50); //Bytt til 50 når joystick skal styre motor/servo
-        //CAN_SendMessage(&tx);
-        //printf("Sendt id=0x%X\r\n", tx.id);
-
-        //_delay_ms(100);
-
-        //if (CAN_Receive(&rx)) {
-          //  printf("Svar fra Node 2: id=0x%X data=%d %d %d\r\n",
-            //       rx.id, rx.data[0], rx.data[1], rx.data[2]);
-        //}
-
-        //tx.data[0]++;          // ny verdi hver gang
-        //_delay_ms(900);
-        
-        /*
-
         if (!joystick_btn_pressed()) {
             menu_update(options, size);
-           _delay_ms(200);
+            _delay_ms(200);
+            continue;
         }
-        
-        else {
-            menu_close();
-            int selected = get_selected();
 
-            OLED_Pos(0,0);
+        menu_close();
+        int selected = get_selected();
+        while (joystick_btn_pressed()) {
+        } // vent til knappen slippes, så spillet ikke skyter med en gang
+
+        OLED_Clear();
+        OLED_Pos(0, 0);
+
+            if (selected == 0) {
+            OLED_Print("Spiller...");
+            play_game();
             OLED_Clear();
+            OLED_Pos(0, 0);
+            OLED_Print("GAME OVER");
+            OLED_Pos(2,0);
+            OLED_Print(" > Hovedmeny");
+        } else {
+            OLED_Print("Ok, ha det!");
+        }
 
-            switch(selected) {
-                case 0:
-                OLED_Print("valg 1"); break;
-                case 1:
-                OLED_Print("valg 2"); break;
-                case 2:
-                OLED_Print("valg 3"); break;
-            } 
-                
-        }      */    
+        wait_for_button();
+        OLED_Clear();
+        menu_init(options, size);
+
     }
 }

@@ -15,9 +15,6 @@ void pwm_init(void) {
     PWM->PWM_CH_NUM[1].PWM_CDTY = 1500; //sette duty cycle til 1,5ms (midten)
 
     PWM->PWM_ENA = PWM_ENA_CHID1; //SKRU PÅ KANAL 1
-
-
-
 }
 
 void pwm_set_us(uint32_t us) {

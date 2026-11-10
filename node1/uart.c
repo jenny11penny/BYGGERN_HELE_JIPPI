@@ -2,6 +2,7 @@
 #include <avr/io.h>
 
 
+//Hentet fra datablad til ATMega162
 void USART_Init(unsigned int ubrr)  
 {
     /* Set baud rate */
@@ -16,6 +17,7 @@ void USART_Init(unsigned int ubrr)
     (3<<UCSZ00);
 }
 
+//Hentet fra datablad til ATMega162
 void USART_Transmit(unsigned char data)
 {
     /* Wait for empty transmit buffer */
@@ -26,6 +28,7 @@ void USART_Transmit(unsigned char data)
 
 }
 
+//Hentet fra datablad til ATMega162
 unsigned char USART_Receive(void)
 {
     /* Wait for data to be received */
@@ -34,6 +37,8 @@ unsigned char USART_Receive(void)
     /* Get and return received data from buffer */
     return UDR0;
 }
+
+
 
 int uart_putchar(char c, FILE *stream) {
     USART_Transmit(c);

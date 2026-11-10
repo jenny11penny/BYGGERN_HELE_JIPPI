@@ -78,8 +78,6 @@ Position ADC_read_pos(void) {
     }
     position.y = y_pct;
 
-    //position.x = (int16_t)x - x_center;
-    //position.y = (int16_t)y - y_center;
     position.x_touch = (int16_t)x_touch - x_touch_center;
     position.y_touch = (int16_t)y_touch - y_touch_center;
     
@@ -109,8 +107,6 @@ void adc_test(void) {
     Position pos = ADC_read_pos();
 
     printf("X: %d Y: %d\r\n", pos.x, pos.y);
-    //printf("X: %d Y: %d\r\n", pos.x_touch, pos.y_touch);
-    //adc_test();
     _delay_ms(500);
 }
 

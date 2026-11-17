@@ -22,19 +22,19 @@ int main()
     uart_init(84000000, 9600);
     printf("Hello Solenoid\n\r");
 
-    can_init((CanInit){.reg = CAN_BR_BRP(41) | CAN_BR_PROPAG(5) | CAN_BR_PHASE1(4) | CAN_BR_PHASE2(3) | CAN_BR_SJW(0)}, 0);
-    pwm_init();
+    can_init((CanInit){.reg = CAN_BR_BRP(41) | CAN_BR_PROPAG(5) | CAN_BR_PHASE1(4) | CAN_BR_PHASE2(3) | CAN_BR_SJW(0)}, 0); //poller
+    pwm_init(); //signal til servo og motor
     ir_init();
     encoder_init();
 
-    //Oppstart -> Kjør rolig mot midten
+    //Oppstart -> Kjøre rolig mot midten
     motor_set(40);                                    // mot høyre
     for (volatile int i = 0; i < 10000000; i++);      // ca. 1-2 sekunder
     motor_set(0);
     for (volatile int i = 0; i < 1000000; i++);       // la vogna roe seg
     encoder_reset();
 
-    controller_init();    
+    controller_init();    //Systick begynner
 
     CanMsg m;
     int8_t x = 0;
@@ -46,10 +46,10 @@ int main()
     while (1)
     {
         
-        if (can_rx(&m) && m.id == 0x10) {
-            x = (int8_t)m.byte[0];
-            int8_t y = (int8_t)m.byte[1];
-            uint8_t button = m.byte[2];
+        if (can_rx(&m) && m.id == 0x10) { //0x10 er joystick meldinger
+            x = (int8_t)m.byte[0]; //motor
+            int8_t y = (int8_t)m.byte[1]; //servo
+            uint8_t button = m.byte[2]; //solenoiden
 
             if (y > -5 && y < 5) {
                 y = 0;
@@ -63,7 +63,7 @@ int main()
             last_button = button;
         } 
         
-        if (controller_ready()) {
+        if (controller_ready()) { //regulatoren oppdateres hvert 10. millisekund
             controller_update(x);
             solenoid_update();
 
@@ -76,7 +76,7 @@ int main()
                 score++;
                 printf("Mål! Poeng: %d\n\r", score);
 
-                CanMsg goal = {.id = 0x20, .length = 1, .byte = {1}};
+                CanMsg goal = {.id = 0x20, .length = 1, .byte = {1}}; //sender til node 1 at det er mål
                 can_tx(goal);
             }
         }

@@ -27,7 +27,7 @@ int controller_ready(void) {
 }
 
 void controller_init(void) {
-    SysTick_Config(84000000 / 100);
+    SysTick_Config(84000000 / 100); //teller ned fra 10 ms så SysTick blir kalt
 }
 
 void controller_update(int8_t x) {
@@ -36,15 +36,15 @@ void controller_update(int8_t x) {
 
     int32_t pos = (int32_t)encoder_read();
 
-    int32_t ref = low + (int32_t)(100 - x) * (high - low) / 200;
-    float e = (float)(ref - pos) * 100.0f / (float)(ENCODER_MAX - ENCODER_MIN);
+    int32_t ref = low + (int32_t)(100 - x) * (high - low) / 200;  //referanse som blir gjort om til 
+    float e = (float)(ref - pos) * 100.0f / (float)(ENCODER_MAX - ENCODER_MIN); //feilen
 
-    integral += e * T;
+    integral += e * T; //feilen summeres over tid
 
-    if (integral > 50.0f / (KI + 0.001f)) integral = 50.0f / (KI + 0.001f);
-    if (integral < -50.0f / (KI + 0.001f)) integral = -50.0f / (KI + 0.001f);
+    if (integral > 50.0f / (KI + 0.001f)) integral = 50.0f / (KI + 0.001f);  //anti wind-up
+    if (integral < -50.0f / (KI + 0.001f)) integral = -50.0f / (KI + 0.001f); //0.001f hindrer at det kan deles på 0
 
-    float u = KP * e + KI * integral;
+    float u = KP * e + KI * integral; //pådrag
 
     if (u > 100) u = 100;
     if (u < -100) u = -100;

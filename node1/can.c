@@ -2,7 +2,7 @@
 #include "mcp2515.h"
 
 void CAN_Init(void) {
-    MCP2515_Reset();
+    MCP2515_Reset(); //125 kbit/s
 
     MCP2515_Write(CNF1, 0X03);
     MCP2515_Write(CNF2, 0XA5);

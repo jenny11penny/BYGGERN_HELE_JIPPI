@@ -54,7 +54,7 @@ void play_game(void)
         joy.data[2] = joystick_btn_pressed();
         CAN_SendMessage(&joy);
  
-        if (CAN_Receive(&rx) && rx.id == 0x20) {
+        if (CAN_Receive(&rx) && rx.id == 0x20) { //mål melding fra node 2
             lives --;
             show_lives(lives);
 
@@ -70,16 +70,16 @@ void play_game(void)
 int main(void)
 {
     USART_Init(MYUBRR);
-    fdevopen(uart_putchar, uart_getchar);
+    fdevopen(uart_putchar, uart_getchar); //til printf
     printf("Hei!");
 
     MCUCR |= (1 << SRE); //aktivere external memomry
 
-    SFIOR |= (1 << XMM2); //
+    SFIOR |= (1 << XMM2); 
 
 
-    ADC_clock_init();
-    ADC_calibrate();
+    ADC_clock_init(); //klokkesignal
+    ADC_calibrate(); //lagrer midtpunktet på joystick
 
     SPI_Init();
     OLED_Init();
